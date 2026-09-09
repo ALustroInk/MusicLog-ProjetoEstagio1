@@ -1,0 +1,618 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&display=swap');
+
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Barlow', sans-serif;
+  background-color: #010101;
+  color: white;
+}
+
+:root {
+  --roxo: #2714b8;
+  --roxo-hover: #4c37e9;
+
+  --fundo: #08080c;
+  --card: #08080c;
+  --borda: rgba(67, 55, 239, 0.682);
+
+  --texto: #ffffff;
+  --texto-secundario: #9292a5;
+
+  --tamanho-header: 80px;
+  --tamanho-footer: 70px;
+}
+
+.container {
+  width: 80%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+
+.topo {
+  height: var(--tamanho-header);
+  background-color: #05050c;
+  border-bottom: 1px solid var(--borda);
+}
+
+.topo .container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+
+  text-decoration: none;
+}
+
+.logo img {
+  width: 42px;
+  height: 42px;
+
+  object-fit: contain;
+}
+
+
+.titulo {
+  margin: 0;
+  color: var(--roxo);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+
+
+.btn-add {
+  text-decoration: none;
+  color: white;
+
+  border: 1px solid rgb(20, 5, 136);
+  border-radius: 8px;
+
+  padding: 9px 16px;
+
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+
+  transition: 0.2s;
+}
+
+.btn-add span {
+  color: var(--texto);
+  font-size: 18px;
+}
+
+.btn-add:hover {
+  background-color: #2714b8;
+  border-color: var(--roxo);
+}
+
+.btn-login {
+  text-decoration: none;
+  color: white;
+
+  border: 1px solid rgb(20, 5, 136);
+  border-radius: 8px;
+
+  padding: 9px 16px;
+
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+
+  transition: 0.2s;
+}
+
+.btn-login:hover {
+  background-color: #2714b8;
+  border-color: var(--roxo);
+}
+
+
+.fundo {
+  min-height: calc(100vh - var(--tamanho-header) - var(--tamanho-footer));
+
+  background-color: var(--fundo);
+
+  border-radius: 0 0 60px 60px;
+
+  padding: 70px 0;
+}
+
+.conteudo {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.bemvindo {
+  margin-bottom: 70px;
+}
+
+.bemvindo p {
+  margin: 0 0 8px;
+
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 300;
+
+  letter-spacing: -2px;
+}
+
+.bemvindo p span {
+  font-weight: 700;
+  color: var(--roxo);
+}
+
+.bemvindo small {
+  color: var(--texto-secundario);
+  font-size: 16px;
+  font-weight: 300;
+}
+
+
+.colecao-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  margin-bottom: 30px;
+}
+
+.colecao-topo h2 {
+  margin: 0 0 5px;
+
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.colecao-topo p {
+  margin: 0;
+
+  color: var(--texto-secundario);
+  font-size: 14px;
+}
+
+.colecao-acoes {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.quantidade {
+  color: var(--texto-secundario);
+  font-size: 13px;
+  margin-left: auto;
+  margin-right: 25px;
+}
+
+
+/*   LISTA DE MÚSICAS (formato faixa)   */
+
+.lista-musicas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.musica {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  padding: 14px 20px;
+
+  background-color: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.musica:hover {
+  transform: translateX(4px);
+
+  border-color: rgb(126, 98, 239);
+
+  background-color: #11112c;
+}
+
+/*   CAPA (agora pequena, quadrada, à esquerda)   */
+
+.musica-capa {
+  flex-shrink: 0;
+
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: linear-gradient(135deg, #15153d, #09091d);
+}
+
+.musica-capa span {
+  color: rgba(255, 255, 255, 0.3);
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/*   INFO (nome + artista)   */
+
+.musica-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.musica-info h3 {
+  margin: 0 0 2px;
+
+  font-size: 17px;
+  font-weight: 600;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.musica-info p {
+  margin: 0;
+
+  color: var(--texto-secundario);
+  font-size: 14px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*   GÊNERO   */
+
+.musica-genero {
+  flex-shrink: 0;
+
+  color: var(--texto-secundario);
+
+  font-size: 12px;
+  font-weight: 500;
+
+  padding: 6px 12px;
+
+  border-radius: 20px;
+
+  background-color: rgba(50, 185, 205, 0.08);
+
+  white-space: nowrap;
+}
+
+/*   NOTA (estrelas maiores e mais visíveis)   */
+
+.musica-nota {
+  flex-shrink: 0;
+
+  color: #e3b062;
+
+  font-size: 18px;
+  letter-spacing: 2px;
+
+  min-width: 110px;
+  text-align: right;
+}
+
+.footer {
+  height: var(--tamanho-footer);
+
+  background-color: #010101;
+
+  color: var(--texto-secundario);
+
+  font-size: 12px;
+}
+
+.footer .container {
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer span:first-child {
+  color: var(--roxo);
+  font-weight: 600;
+}
+
+.version {
+  font-size: 11px;
+}
+
+/*   MODAL LOGIN/CADASTRO   */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: rgba(1, 1, 1, 0.75);
+  backdrop-filter: blur(4px);
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+
+  z-index: 999;
+}
+
+.modal-overlay.ativo {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-card {
+  position: relative;
+
+  width: 90%;
+  max-width: 380px;
+
+  background-color: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+
+  padding: 36px 30px;
+
+  transform: translateY(-20px);
+  transition: transform 0.25s ease;
+}
+
+.modal-overlay.ativo .modal-card {
+  transform: translateY(0);
+}
+
+.modal-fechar {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+
+  background: none;
+  border: none;
+
+  color: var(--texto-secundario);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+
+  transition: color 0.2s;
+}
+
+.modal-fechar:hover {
+  color: var(--texto);
+}
+
+.modal-titulo {
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+
+.modal-subtitulo {
+  margin: 0 0 24px;
+  color: var(--texto-secundario);
+  font-size: 14px;
+}
+
+.modal-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  margin-bottom: 16px;
+
+  color: var(--texto-secundario);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.modal-label input {
+  padding: 11px 12px;
+
+  background-color: #0e0e18;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+
+  color: var(--texto);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-label input:focus {
+  border-color: var(--roxo-hover);
+}
+
+.modal-btn {
+  width: 100%;
+
+  margin-top: 6px;
+
+  padding: 12px;
+
+  background-color: var(--roxo);
+  border: 1px solid rgb(20, 5, 136);
+  border-radius: 8px;
+
+  color: white;
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.modal-btn:hover {
+  background-color: var(--roxo-hover);
+}
+
+.modal-troca {
+  margin: 18px 0 0;
+  text-align: center;
+
+  color: var(--texto-secundario);
+  font-size: 13px;
+}
+
+.modal-troca a {
+  color: var(--roxo-hover);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.modal-troca a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 500px) {
+  .modal-card {
+    padding: 30px 22px;
+  }
+}
+
+/*   ESTRELAS DO MODAL DE MÚSICA   */
+
+.modal-estrelas {
+  display: flex;
+  gap: 6px;
+
+  font-size: 26px;
+  color: rgba(255, 255, 255, 0.2);
+
+  cursor: pointer;
+  user-select: none;
+}
+
+.modal-estrelas .estrela {
+  transition: color 0.15s, transform 0.15s;
+}
+
+.modal-estrelas .estrela:hover {
+  transform: scale(1.15);
+}
+
+.modal-estrelas .estrela.ativa {
+  color: #e3b062;
+}
+
+
+/*   RESPONSIVIDADE*/
+
+@media (max-width: 800px) {
+
+
+  @media (max-width: 800px) {
+
+  .musica {
+    flex-wrap: wrap;
+    gap: 12px 16px;
+  }
+
+  .musica-info {
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 60%;
+  }
+
+  .musica-genero {
+    order: 2;
+  }
+
+  .musica-nota {
+    order: 3;
+    min-width: auto;
+    text-align: left;
+  }
+}
+
+  .capa {
+    height: 180px;
+  }
+
+  .colecao-topo {
+    align-items: flex-start;
+  }
+
+  .quantidade {
+    display: none;
+  }
+
+  .footer .container {
+    gap: 10px;
+  }
+}
+
+
+@media (max-width: 500px) {
+
+  .titulo {
+    font-size: 24px;
+  }
+
+  .bemvindo {
+    margin-bottom: 50px;
+  }
+
+  .bemvindo p {
+    font-size: 40px;
+  }
+
+    .musica {
+    padding: 12px 14px;
+  }
+
+  .musica-capa {
+    width: 44px;
+    height: 44px;
+  }
+
+  .musica-nota {
+    font-size: 16px;
+  }
+
+  .footer {
+    height: auto;
+    padding: 25px 0;
+  }
+
+  .footer .container {
+    flex-direction: column;
+  }
+}

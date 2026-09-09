@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>MusicLog</title>
+
+    <link rel="stylesheet" href="./css/estilo.css" />
+    <link rel="icon" href="./assets/imgs/logo_musiclog.png" />
+
+    <script src="./js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header class="topo">
+      <div class="container">
+        <a href="#" class="logo">
+          <img src="./assets/imgs/logo_musiclog.png" alt="MusicLog" />
+          <h1 class="titulo">MusicLog</h1>
+        </a>
+
+        <a href="#" class="btn-login" id="btnLogin">LOGIN</a>
+      </div>
+    </header>
+
+    <main class="fundo">
+      <div class="container conteudo">
+        <section class="bemvindo">
+          <p>Olá, <span>Pessoa</span>.</p>
+          <small>O que você tem ouvido ultimamente?</small>
+        </section>
+
+        <section class="colecao">
+          <div class="colecao-topo">
+            <div>
+              <h2>Sua coleção</h2>
+              <p>Suas músicas salvas no MusicLog.</p>
+            </div>
+
+            <span class="quantidade">3 músicas</span>
+
+            <a href="#" class="btn-add" id="btnAdd">ADD <span>+</span></a>
+          </div>
+
+          <div class="lista-musicas" id="cardsContainer">
+            <article class="musica">
+              <div class="musica-capa">
+                <span></span>
+              </div>
+
+              <div class="musica-info">
+                <h3>Heart-Shaped Box</h3>
+                <p>Nirvana</p>
+              </div>
+
+              <span class="musica-genero">Grunge</span>
+
+              <span class="musica-nota">★★★★★</span>
+            </article>
+
+            <article class="musica">
+              <div class="musica-capa">
+                <span></span>
+              </div>
+
+              <div class="musica-info">
+                <h3>London Calling</h3>
+                <p>The Clash</p>
+              </div>
+
+              <span class="musica-genero">Punk Rock</span>
+
+              <span class="musica-nota">★★★★☆</span>
+            </article>
+
+            <article class="musica">
+              <div class="musica-capa">
+                <span></span>
+              </div>
+
+              <div class="musica-info">
+                <h3>Everlong</h3>
+                <p>Foo Fighters</p>
+              </div>
+
+              <span class="musica-genero">Alternative</span>
+
+              <span class="musica-nota">★★★★★</span>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <span>MusicLog</span>
+        <span>Feito com ♥ por Andressa © 2026</span>
+        <span class="version">v1.0.0</span>
+      </div>
+    </footer>
+
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal-card">
+        <button class="modal-fechar" id="modalFechar" aria-label="Fechar">
+          &times;
+        </button>
+
+        <form class="modal-form" id="formLogin">
+          <h2 class="modal-titulo">Entrar</h2>
+          <p class="modal-subtitulo">Acesse sua coleção no MusicLog.</p>
+
+          <label class="modal-label">
+            E-mail
+            <input
+              type="email"
+              name="email"
+              placeholder="seu@email.com"
+              required
+            />
+          </label>
+
+          <label class="modal-label">
+            Senha
+            <input
+              type="password"
+              name="senha"
+              placeholder="••••••••"
+              required
+            />
+          </label>
+
+          <button type="submit" class="modal-btn">ENTRAR</button>
+
+          <p class="modal-troca">
+            Não tem uma conta?
+            <a href="#" id="irParaCadastro">Cadastre-se</a>
+          </p>
+        </form>
+
+        <form class="modal-form" id="formCadastro" hidden>
+          <h2 class="modal-titulo">Criar conta</h2>
+          <p class="modal-subtitulo">
+            Comece a registrar suas músicas favoritas.
+          </p>
+
+          <label class="modal-label">
+            Nome
+            <input type="text" name="nome" placeholder="Seu nome" required />
+          </label>
+
+          <label class="modal-label">
+            E-mail
+            <input
+              type="email"
+              name="email"
+              placeholder="seu@email.com"
+              required
+            />
+          </label>
+
+          <label class="modal-label">
+            Senha
+            <input
+              type="password"
+              name="senha"
+              placeholder="••••••••"
+              required
+            />
+          </label>
+
+          <button type="submit" class="modal-btn">CRIAR CONTA</button>
+
+          <p class="modal-troca">
+            Já tem uma conta?
+            <a href="#" id="irParaLogin">Entrar</a>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modalMusicaOverlay">
+      <div class="modal-card">
+        <button class="modal-fechar" id="modalMusicaFechar" aria-label="Fechar">
+          &times;
+        </button>
+
+        <form class="modal-form" id="formMusica">
+          <h2 class="modal-titulo">Adicionar música</h2>
+          <p class="modal-subtitulo">Registre uma nova faixa na sua coleção.</p>
+
+          <label class="modal-label">
+            Nome da música
+            <input
+              type="text"
+              name="nome"
+              id="musicaNome"
+              placeholder="Ex: Heart-Shaped Box"
+              required
+            />
+          </label>
+
+          <label class="modal-label">
+            Artista / Banda
+            <input
+              type="text"
+              name="artista"
+              id="musicaArtista"
+              placeholder="Ex: Nirvana"
+              required
+            />
+          </label>
+
+          <label class="modal-label">
+            Gênero
+            <input
+              type="text"
+              name="genero"
+              id="musicaGenero"
+              placeholder="Ex: Grunge"
+              required
+            />
+          </label>
+
+          <label class="modal-label">
+            Sua nota
+            <div class="modal-estrelas" id="modalEstrelas">
+              <span class="estrela" data-valor="1">★</span>
+              <span class="estrela" data-valor="2">★</span>
+              <span class="estrela" data-valor="3">★</span>
+              <span class="estrela" data-valor="4">★</span>
+              <span class="estrela" data-valor="5">★</span>
+            </div>
+            <input type="hidden" name="nota" id="musicaNota" value="0" />
+          </label>
+
+          <button type="submit" class="modal-btn">SALVAR MÚSICA</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
