@@ -49,18 +49,41 @@ const formMusica = document.getElementById("formMusica");
 const cardsContainer = document.getElementById("cardsContainer");
 const quantidadeSpan = document.querySelector(".quantidade");
 
+// detalhes/edição/exclusão
+const modalDetalheOverlay = document.getElementById("modalDetalheOverlay");
+const modalDetalheFechar = document.getElementById("modalDetalheFechar");
+
+const detalheView = document.getElementById("detalheView");
+const detalheNome = document.getElementById("detalheNome");
+const detalheArtista = document.getElementById("detalheArtista");
+const detalheGenero = document.getElementById("detalheGenero");
+const detalheNota = document.getElementById("detalheNota");
+
+const btnEditarMusica = document.getElementById("btnEditarMusica");
+const btnExcluirMusica = document.getElementById("btnExcluirMusica");
+
+const formEditarMusica = document.getElementById("formEditarMusica");
+const editNome = document.getElementById("editNome");
+const editArtista = document.getElementById("editArtista");
+const editGenero = document.getElementById("editGenero");
+const editNota = document.getElementById("editNota");
+const editEstrelasEls = document.querySelectorAll("#editEstrelas .estrela");
+const btnCancelarEdicao = document.getElementById("btnCancelarEdicao");
+
+let musicaAtual = null;
+
 const estrelas = document.querySelectorAll("#modalEstrelas .estrela");
 const inputNota = document.getElementById("musicaNota");
 
 let contadorMusicas = document.querySelectorAll(".musica").length;
 
-// Abrir modal de música
+
 btnAdd.addEventListener("click", (e) => {
   e.preventDefault();
   modalMusicaOverlay.classList.add("ativo");
 });
 
-// Fechar modal de música
+
 modalMusicaFechar.addEventListener("click", fecharModalMusica);
 
 modalMusicaOverlay.addEventListener("click", (e) => {
@@ -79,7 +102,7 @@ function fecharModalMusica() {
   resetarEstrelas();
 }
 
-// Seleção de estrelas
+
 estrelas.forEach((estrela) => {
   estrela.addEventListener("click", () => {
     const valor = parseInt(estrela.dataset.valor);
@@ -99,7 +122,7 @@ function resetarEstrelas() {
   estrelas.forEach((estrela) => estrela.classList.remove("ativa"));
 }
 
-// Envio do formulário -> cria o card
+// cria o card
 formMusica.addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -115,27 +138,40 @@ formMusica.addEventListener("submit", (e) => {
 
   contadorMusicas++;
 
-  const musica = document.createElement("article");
-  musica.classList.add("musica");
+      contadorMusicas++;
 
-  musica.innerHTML = `
-    <div class="musica-capa">
-      <span>${String(contadorMusicas).padStart(2, "0")}</span>
-    </div>
+    const musica = document.createElement('article');
+    musica.classList.add('musica');
+    musica.dataset.id = contadorMusicas;
+    musica.dataset.nome = nome;
+    musica.dataset.artista = artista;
+    musica.dataset.genero = genero;
+    musica.dataset.nota = nota;
 
-    <div class="musica-info">
-      <h3>${nome}</h3>
-      <p>${artista}</p>
-    </div>
+    musica.innerHTML = `
+      <div class="musica-capa">
+        <span>${String(contadorMusicas).padStart(2, '0')}</span>
+      </div>
 
-    <span class="musica-genero">${genero}</span>
+      <div class="musica-info">
+        <h3>${nome}</h3>
+        <p>${artista}</p>
+      </div>
 
-    <span class="musica-nota">
-      ${"★".repeat(nota)}${"☆".repeat(5 - nota)}
-    </span>
-  `;
+      <span class="musica-genero">${genero}</span>
+      <span class="musica-nota">${'★'.repeat(nota)}${'☆'.repeat(5 - nota)}</span>
 
-  cardsContainer.appendChild(musica);
+      <button class="musica-excluir" data-acao="excluir" aria-label="Excluir música" type="button">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18" stroke-linecap="round"/>
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-linecap="round"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke-linecap="round"/>
+          <path d="M10 11v6M14 11v6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    `;
+
+    cardsContainer.appendChild(musica);
 
   if (quantidadeSpan) {
     quantidadeSpan.textContent = `${contadorMusicas} músicas`;
@@ -143,3 +179,131 @@ formMusica.addEventListener("submit", (e) => {
 
   fecharModalMusica();
 });
+
+
+  function estrelasParaTexto(nota) {
+    return '★'.repeat(nota) + '☆'.repeat(5 - nota);
+  }
+
+  cardsContainer.addEventListener('click', (e) => {
+    const botaoExcluir = e.target.closest('.musica-excluir');
+    const linha = e.target.closest('.musica');
+
+    if (!linha) return;
+
+    if (botaoExcluir) {
+      excluirMusica(linha);
+      return;
+    }
+
+    abrirDetalhes(linha);
+  });
+
+  function abrirDetalhes(linha) {
+    musicaAtual = linha;
+
+    detalheNome.textContent = linha.dataset.nome;
+    detalheArtista.textContent = linha.dataset.artista;
+    detalheGenero.textContent = linha.dataset.genero;
+    detalheNota.textContent = estrelasParaTexto(parseInt(linha.dataset.nota));
+
+    detalheView.hidden = false;
+    formEditarMusica.hidden = true;
+
+    modalDetalheOverlay.classList.add('ativo');
+  }
+
+  function fecharModalDetalhe() {
+    modalDetalheOverlay.classList.remove('ativo');
+    musicaAtual = null;
+  }
+
+  modalDetalheFechar.addEventListener('click', fecharModalDetalhe);
+
+  modalDetalheOverlay.addEventListener('click', (e) => {
+    if (e.target === modalDetalheOverlay) fecharModalDetalhe();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalDetalheOverlay.classList.contains('ativo')) {
+      fecharModalDetalhe();
+    }
+  });
+
+  function excluirMusica(linha) {
+    const confirmar = confirm(`Remover "${linha.dataset.nome}" da sua coleção?`);
+    if (!confirmar) return;
+
+    linha.remove();
+
+    const total = document.querySelectorAll('.musica').length;
+    if (quantidadeSpan) quantidadeSpan.textContent = `${total} músicas`;
+
+    fecharModalDetalhe();
+  }
+
+  btnExcluirMusica.addEventListener('click', () => {
+    if (musicaAtual) excluirMusica(musicaAtual);
+  });
+
+
+  btnEditarMusica.addEventListener('click', () => {
+    if (!musicaAtual) return;
+
+    editNome.value = musicaAtual.dataset.nome;
+    editArtista.value = musicaAtual.dataset.artista;
+    editGenero.value = musicaAtual.dataset.genero;
+    editNota.value = musicaAtual.dataset.nota;
+
+    pintarEstrelasEdicao(parseInt(musicaAtual.dataset.nota));
+
+    detalheView.hidden = true;
+    formEditarMusica.hidden = false;
+  });
+
+  btnCancelarEdicao.addEventListener('click', () => {
+    detalheView.hidden = false;
+    formEditarMusica.hidden = true;
+  });
+
+  editEstrelasEls.forEach((estrela) => {
+    estrela.addEventListener('click', () => {
+      const valor = parseInt(estrela.dataset.valor);
+      editNota.value = valor;
+      pintarEstrelasEdicao(valor);
+    });
+  });
+
+  function pintarEstrelasEdicao(valor) {
+    editEstrelasEls.forEach((estrela) => {
+      estrela.classList.toggle('ativa', parseInt(estrela.dataset.valor) <= valor);
+    });
+  }
+
+  formEditarMusica.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    if (!musicaAtual) return;
+
+    const nome = editNome.value.trim();
+    const artista = editArtista.value.trim();
+    const genero = editGenero.value.trim();
+    const nota = parseInt(editNota.value) || 0;
+
+    if (!nome || !artista || !genero || nota === 0) {
+      alert('Preencha todos os campos e selecione uma nota.');
+      return;
+    }
+
+    musicaAtual.dataset.nome = nome;
+    musicaAtual.dataset.artista = artista;
+    musicaAtual.dataset.genero = genero;
+    musicaAtual.dataset.nota = nota;
+
+    musicaAtual.querySelector('.musica-info h3').textContent = nome;
+    musicaAtual.querySelector('.musica-info p').textContent = artista;
+    musicaAtual.querySelector('.musica-genero').textContent = genero;
+    musicaAtual.querySelector('.musica-nota').textContent = estrelasParaTexto(nota);
+
+    abrirDetalhes(musicaAtual);
+  });

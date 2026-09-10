@@ -44,9 +44,16 @@
           </div>
 
           <div class="lista-musicas" id="cardsContainer">
-            <article class="musica">
+            <article
+              class="musica"
+              data-id="1"
+              data-nome="Heart-Shaped Box"
+              data-artista="Nirvana"
+              data-genero="Grunge"
+              data-nota="5"
+            >
               <div class="musica-capa">
-                <span></span>
+                <span>01</span>
               </div>
 
               <div class="musica-info">
@@ -55,13 +62,46 @@
               </div>
 
               <span class="musica-genero">Grunge</span>
-
               <span class="musica-nota">★★★★★</span>
+
+              <button
+                class="musica-excluir"
+                data-acao="excluir"
+                aria-label="Excluir música"
+                type="button"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M3 6h18" stroke-linecap="round" />
+                  <path
+                    d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"
+                    stroke-linecap="round"
+                  />
+                  <path d="M10 11v6M14 11v6" stroke-linecap="round" />
+                </svg>
+              </button>
             </article>
 
-            <article class="musica">
+            <article
+              class="musica"
+              data-id="2"
+              data-nome="London Calling"
+              data-artista="The Clash"
+              data-genero="Punk Rock"
+              data-nota="4"
+            >
               <div class="musica-capa">
-                <span></span>
+                <span>02</span>
               </div>
 
               <div class="musica-info">
@@ -70,13 +110,46 @@
               </div>
 
               <span class="musica-genero">Punk Rock</span>
-
               <span class="musica-nota">★★★★☆</span>
+
+              <button
+                class="musica-excluir"
+                data-acao="excluir"
+                aria-label="Excluir música"
+                type="button"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M3 6h18" stroke-linecap="round" />
+                  <path
+                    d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"
+                    stroke-linecap="round"
+                  />
+                  <path d="M10 11v6M14 11v6" stroke-linecap="round" />
+                </svg>
+              </button>
             </article>
 
-            <article class="musica">
+            <article
+              class="musica"
+              data-id="3"
+              data-nome="Everlong"
+              data-artista="Foo Fighters"
+              data-genero="Alternative"
+              data-nota="5"
+            >
               <div class="musica-capa">
-                <span></span>
+                <span>03</span>
               </div>
 
               <div class="musica-info">
@@ -85,8 +158,34 @@
               </div>
 
               <span class="musica-genero">Alternative</span>
-
               <span class="musica-nota">★★★★★</span>
+
+              <button
+                class="musica-excluir"
+                data-acao="excluir"
+                aria-label="Excluir música"
+                type="button"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M3 6h18" stroke-linecap="round" />
+                  <path
+                    d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"
+                    stroke-linecap="round"
+                  />
+                  <path d="M10 11v6M14 11v6" stroke-linecap="round" />
+                </svg>
+              </button>
             </article>
           </div>
         </section>
@@ -236,6 +335,95 @@
           </label>
 
           <button type="submit" class="modal-btn">SALVAR MÚSICA</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL DE DETALHES / EDIÇÃO / EXCLUSÃO -->
+    <div class="modal-overlay" id="modalDetalheOverlay">
+      <div class="modal-card">
+        <button
+          class="modal-fechar"
+          id="modalDetalheFechar"
+          aria-label="Fechar"
+        >
+          &times;
+        </button>
+
+
+        <div class="modal-detalhe" id="detalheView">
+          <h2 class="modal-titulo" id="detalheNome"></h2>
+          <p class="modal-subtitulo" id="detalheArtista"></p>
+
+          <div class="detalhe-linha">
+            <span class="detalhe-label">Gênero</span>
+            <span class="musica-genero" id="detalheGenero"></span>
+          </div>
+
+          <div class="detalhe-linha">
+            <span class="detalhe-label">Sua nota</span>
+            <span class="musica-nota" id="detalheNota"></span>
+          </div>
+
+          <div class="modal-acoes">
+            <button
+              type="button"
+              class="modal-btn modal-btn-secundario"
+              id="btnEditarMusica"
+            >
+              EDITAR
+            </button>
+            <button
+              type="button"
+              class="modal-btn modal-btn-perigo"
+              id="btnExcluirMusica"
+            >
+              EXCLUIR
+            </button>
+          </div>
+        </div>
+
+
+        <form class="modal-form" id="formEditarMusica" hidden>
+          <h2 class="modal-titulo">Editar música</h2>
+
+          <label class="modal-label">
+            Nome da música
+            <input type="text" id="editNome" required />
+          </label>
+
+          <label class="modal-label">
+            Artista / Banda
+            <input type="text" id="editArtista" required />
+          </label>
+
+          <label class="modal-label">
+            Gênero
+            <input type="text" id="editGenero" required />
+          </label>
+
+          <label class="modal-label">
+            Sua nota
+            <div class="modal-estrelas" id="editEstrelas">
+              <span class="estrela" data-valor="1">★</span>
+              <span class="estrela" data-valor="2">★</span>
+              <span class="estrela" data-valor="3">★</span>
+              <span class="estrela" data-valor="4">★</span>
+              <span class="estrela" data-valor="5">★</span>
+            </div>
+            <input type="hidden" id="editNota" value="0" />
+          </label>
+
+          <div class="modal-acoes">
+            <button type="submit" class="modal-btn">SALVAR ALTERAÇÕES</button>
+            <button
+              type="button"
+              class="modal-btn modal-btn-secundario"
+              id="btnCancelarEdicao"
+            >
+              CANCELAR
+            </button>
+          </div>
         </form>
       </div>
     </div>
