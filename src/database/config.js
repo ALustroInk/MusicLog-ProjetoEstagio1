@@ -33,6 +33,36 @@ function executar(instrucao) {
     });
 }
 
+function executarSeguro(instrucao, parametros) {
+
+    if (process.env.AMBIENTE_PROCESSO !== "producao" && process.env.AMBIENTE_PROCESSO !== "desenvolvimento") {
+        console.log("\nO AMBIENTE (produção OU desenvolvimento) NÃO FOI DEFINIDO EM .env OU dev.env OU app.js\n");
+        return Promise.reject("AMBIENTE NÃO CONFIGURADO EM .env");
+    }
+
+    return new Promise(function (resolve, reject) {
+        var conexao = mysql.createConnection(mySqlConfig);
+        conexao.connect();
+
+        // O segredo está aqui: passamos "parametros" como 2º argumento.
+        // O mysql2 troca cada "?" da instrucaoSql pelo valor correspondente,
+        // já escapando tudo — impossível injetar SQL malicioso assim.
+        conexao.query(instrucao, parametros, function (erro, resultados) {
+            conexao.end();
+            if (erro) {
+                reject(erro);
+            }
+            console.log(resultados);
+            resolve(resultados);
+        });
+
+        conexao.on('error', function (erro) {
+            return ("ERRO NO MySQL SERVER: ", erro.sqlMessage);
+        });
+    });
+}
+
 module.exports = {
-    executar
+    executar,
+    executarSeguro
 };
