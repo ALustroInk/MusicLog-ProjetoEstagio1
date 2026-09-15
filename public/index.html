@@ -20,14 +20,29 @@
           <h1 class="titulo">MusicLog</h1>
         </a>
 
-        <a href="#" class="btn-login" id="btnLogin">LOGIN</a>
+        <div class="area-conta">
+          <a href="#" class="btn-login" id="btnLogin">LOGIN</a>
+
+          <div class="perfil" id="perfilContainer" hidden>
+            <button class="btn-perfil" id="btnPerfil" type="button">
+              <span id="perfilInicial">?</span>
+            </button>
+
+            <div class="perfil-menu" id="perfilMenu" hidden>
+              <p class="perfil-nome" id="perfilNome"></p>
+              <button type="button" class="perfil-sair" id="btnSair">
+                Sair da conta
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
     <main class="fundo">
       <div class="container conteudo">
         <section class="bemvindo">
-          <p>Olá, <span>Pessoa</span>.</p>
+          <p>Olá, <span id="nomeUsuario">Pessoa</span>.</p>
           <small>O que você tem ouvido ultimamente?</small>
         </section>
 
@@ -350,7 +365,6 @@
           &times;
         </button>
 
-
         <div class="modal-detalhe" id="detalheView">
           <h2 class="modal-titulo" id="detalheNome"></h2>
           <p class="modal-subtitulo" id="detalheArtista"></p>
@@ -382,7 +396,6 @@
             </button>
           </div>
         </div>
-
 
         <form class="modal-form" id="formEditarMusica" hidden>
           <h2 class="modal-titulo">Editar música</h2>

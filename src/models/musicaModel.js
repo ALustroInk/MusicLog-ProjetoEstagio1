@@ -1,48 +1,40 @@
 var database = require("../database/config");
 
-function listar() {
+function listarPorUsuario(idUsuario) {
     var instrucaoSql = `
         SELECT idMusicas, nome, artista, genero, nota, data_criacao, data_edicao
         FROM musicas
+        WHERE fk_usuario = ?
         ORDER BY data_criacao DESC
     `;
-    return database.executarSeguro(instrucaoSql, []);
+    return database.executarSeguro(instrucaoSql, [idUsuario]);
 }
 
-function buscarPorId(id) {
+function cadastrar(nome, artista, genero, nota, idUsuario) {
     var instrucaoSql = `
-        SELECT idMusicas, nome, artista, genero, nota, data_criacao, data_edicao
-        FROM musicas
-        WHERE idMusicas = ?
+        INSERT INTO musicas (nome, artista, genero, nota, fk_usuario)
+        VALUES (?, ?, ?, ?, ?)
     `;
-    return database.executarSeguro(instrucaoSql, [id]);
+    return database.executarSeguro(instrucaoSql, [nome, artista, genero, nota, idUsuario]);
 }
 
-function cadastrar(nome, artista, genero, nota) {
-    var instrucaoSql = `
-        INSERT INTO musicas (nome, artista, genero, nota)
-        VALUES (?, ?, ?, ?)
-    `;
-    return database.executarSeguro(instrucaoSql, [nome, artista, genero, nota]);
-}
-
-function editar(id, nome, artista, genero, nota) {
+function editar(id, nome, artista, genero, nota, idUsuario) {
     var instrucaoSql = `
         UPDATE musicas
         SET nome = ?, artista = ?, genero = ?, nota = ?, data_edicao = NOW()
-        WHERE idMusicas = ?
+        WHERE idMusicas = ? AND fk_usuario = ?
     `;
-    return database.executarSeguro(instrucaoSql, [nome, artista, genero, nota, id]);
+    // o "AND fk_usuario = ?" garante que ninguém edite música de outra pessoa
+    return database.executarSeguro(instrucaoSql, [nome, artista, genero, nota, id, idUsuario]);
 }
 
-function deletar(id) {
-    var instrucaoSql = `DELETE FROM musicas WHERE idMusicas = ?`;
-    return database.executarSeguro(instrucaoSql, [id]);
+function deletar(id, idUsuario) {
+    var instrucaoSql = `DELETE FROM musicas WHERE idMusicas = ? AND fk_usuario = ?`;
+    return database.executarSeguro(instrucaoSql, [id, idUsuario]);
 }
 
 module.exports = {
-    listar,
-    buscarPorId,
+    listarPorUsuario,
     cadastrar,
     editar,
     deletar
