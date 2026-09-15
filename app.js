@@ -17,8 +17,7 @@ var app = express();
 
 var indexRouter = require("./src/routes/index");
 var usuarioRouter = require("./src/routes/usuarios");
-var aquariosRouter = require("./src/routes/aquarios");
-var musicasRouter = require("./src/routes/musicas");
+var musicaRouter = require("./src/routes/musicas");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -28,8 +27,7 @@ app.use(cors());
 
 app.use("/", indexRouter);
 app.use("/usuarios", usuarioRouter);
-app.use("/aquarios", aquariosRouter);
-app.use("/musicas", musicasRouter);
+app.use("/musicas", musicaRouter);
 
 app.listen(PORTA_APP, function () {
     console.log(`

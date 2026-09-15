@@ -17,3 +17,8 @@ nota SMALLINT NOT NULL CHECK (nota BETWEEN 1 AND 5),
 data_criacao TIMESTAMP NOT NULL DEFAULT NOW(),
 data_edicao TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE musicas
+ADD COLUMN fk_usuario INT NOT NULL,
+ADD CONSTRAINT fk_musicas_usuario
+    FOREIGN KEY (fk_usuario) REFERENCES usuarios(idUsuarios);
