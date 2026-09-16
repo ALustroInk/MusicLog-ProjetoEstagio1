@@ -628,6 +628,112 @@ body {
   border-color: #ff5c5c;
 }
 
+.area-conta {
+  position: relative;
+}
+
+.perfil {
+  position: relative;
+}
+
+.btn-perfil {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: var(--roxo);
+  border: 1px solid rgb(20, 5, 136);
+  border-radius: 50%;
+
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-perfil:hover {
+  background-color: var(--roxo-hover);
+}
+
+.perfil-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+
+  width: 200px;
+
+  background-color: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+
+  padding: 14px;
+
+  z-index: 10;
+}
+
+.perfil-nome {
+  margin: 0 0 10px;
+
+  color: var(--texto);
+  font-size: 14px;
+  font-weight: 600;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.perfil-sair {
+  width: 100%;
+
+  padding: 8px 10px;
+
+  background: none;
+  border: 1px solid rgba(255, 92, 92, 0.4);
+  border-radius: 6px;
+
+  color: #ff5c5c;
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.perfil-sair:hover {
+  background-color: rgba(255, 92, 92, 0.1);
+}
+
+/* DESLOGADO NA LISTA  */
+
+.estado-vazio {
+  padding: 40px 20px;
+  text-align: center;
+
+  color: var(--texto-secundario);
+  font-size: 15px;
+
+  border: 1px dashed var(--borda);
+  border-radius: 12px;
+}
+
+.estado-vazio a {
+  color: var(--roxo-hover);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.estado-vazio a:hover {
+  text-decoration: underline;
+}
+
 
 /*   RESPONSIVIDADE*/
 

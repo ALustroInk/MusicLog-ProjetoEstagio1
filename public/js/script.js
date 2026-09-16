@@ -1,193 +1,373 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const btnLogin = document.getElementById("btnLogin");
-  const modalOverlay = document.getElementById("modalOverlay");
-  const modalFechar = document.getElementById("modalFechar");
+document.addEventListener('DOMContentLoaded', () => {
 
-  const formLogin = document.getElementById("formLogin");
-  const formCadastro = document.getElementById("formCadastro");
+  // ESTADO DE LOGIN
+  function obterUsuarioLogado() {
+    var dados = localStorage.getItem('musiclog_usuario');
+    return dados ? JSON.parse(dados) : null;
+  }
 
-  const irParaCadastro = document.getElementById("irParaCadastro");
-  const irParaLogin = document.getElementById("irParaLogin");
+  function salvarUsuarioLogado(usuario) {
+    localStorage.setItem('musiclog_usuario', JSON.stringify(usuario));
+  }
 
-  // Abrir modal
-  btnLogin.addEventListener("click", (e) => {
+  function sairDaConta() {
+    localStorage.removeItem('musiclog_usuario');
+    atualizarInterfaceLogin();
+    carregarMusicas();
+  }
+
+  // ELEMENTOS DO HEADER
+  const btnLogin = document.getElementById('btnLogin');
+  const perfilContainer = document.getElementById('perfilContainer');
+  const btnPerfil = document.getElementById('btnPerfil');
+  const perfilMenu = document.getElementById('perfilMenu');
+  const perfilInicial = document.getElementById('perfilInicial');
+  const perfilNome = document.getElementById('perfilNome');
+  const btnSair = document.getElementById('btnSair');
+  const nomeUsuarioSpan = document.getElementById('nomeUsuario');
+
+  function atualizarInterfaceLogin() {
+    var usuario = obterUsuarioLogado();
+
+    if (usuario) {
+      btnLogin.hidden = true;
+      perfilContainer.hidden = false;
+
+      perfilInicial.textContent = usuario.nome.charAt(0).toUpperCase();
+      perfilNome.textContent = usuario.nome;
+      nomeUsuarioSpan.textContent = usuario.nome;
+    } else {
+      btnLogin.hidden = false;
+      perfilContainer.hidden = true;
+      perfilMenu.hidden = true;
+
+      nomeUsuarioSpan.textContent = 'Pessoa';
+    }
+  }
+
+  btnPerfil.addEventListener('click', () => {
+    perfilMenu.hidden = !perfilMenu.hidden;
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!perfilContainer.contains(e.target)) {
+      perfilMenu.hidden = true;
+    }
+  });
+
+  btnSair.addEventListener('click', () => {
+    perfilMenu.hidden = true;
+    sairDaConta();
+  });
+
+
+  // MODAL LOGIN/CADASTRO
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalFechar = document.getElementById('modalFechar');
+  const formLogin = document.getElementById('formLogin');
+  const formCadastro = document.getElementById('formCadastro');
+  const irParaCadastro = document.getElementById('irParaCadastro');
+  const irParaLogin = document.getElementById('irParaLogin');
+
+  function abrirModalLogin() {
+    modalOverlay.classList.add('ativo');
+  }
+
+  btnLogin.addEventListener('click', (e) => {
     e.preventDefault();
-    modalOverlay.classList.add("ativo");
+    abrirModalLogin();
   });
 
-  // Fechar modal (botão X)
-  modalFechar.addEventListener("click", () => {
-    fecharModal();
+  modalFechar.addEventListener('click', () => fecharModal());
+
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) fecharModal();
   });
 
-  // Alternar para cadastro
-  irParaCadastro.addEventListener("click", (e) => {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalOverlay.classList.contains('ativo')) {
+      fecharModal();
+    }
+  });
+
+  irParaCadastro.addEventListener('click', (e) => {
     e.preventDefault();
     formLogin.hidden = true;
     formCadastro.hidden = false;
   });
 
-  // Alternar para login
-  irParaLogin.addEventListener("click", (e) => {
+  irParaLogin.addEventListener('click', (e) => {
     e.preventDefault();
     formCadastro.hidden = true;
     formLogin.hidden = false;
   });
 
   function fecharModal() {
-    modalOverlay.classList.remove("ativo");
-    // sempre volta pro login da próxima vez que abrir
+    modalOverlay.classList.remove('ativo');
     formCadastro.hidden = true;
     formLogin.hidden = false;
   }
-});
 
-const btnAdd = document.getElementById("btnAdd");
-const modalMusicaOverlay = document.getElementById("modalMusicaOverlay");
-const modalMusicaFechar = document.getElementById("modalMusicaFechar");
-const formMusica = document.getElementById("formMusica");
-const cardsContainer = document.getElementById("cardsContainer");
-const quantidadeSpan = document.querySelector(".quantidade");
+  formLogin.addEventListener('submit', (e) => {
+    e.preventDefault();
 
-// detalhes/edição/exclusão
-const modalDetalheOverlay = document.getElementById("modalDetalheOverlay");
-const modalDetalheFechar = document.getElementById("modalDetalheFechar");
+    var email = formLogin.email.value.trim();
+    var senha = formLogin.senha.value.trim();
 
-const detalheView = document.getElementById("detalheView");
-const detalheNome = document.getElementById("detalheNome");
-const detalheArtista = document.getElementById("detalheArtista");
-const detalheGenero = document.getElementById("detalheGenero");
-const detalheNota = document.getElementById("detalheNota");
+    fetch('/usuarios/autenticar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, senha: senha })
+    })
+      .then((resposta) => resposta.json().then((dados) => ({ status: resposta.status, dados })))
+      .then(({ status, dados }) => {
+        if (status !== 200) {
+          alert(dados.mensagem || 'Não foi possível entrar.');
+          return;
+        }
 
-const btnEditarMusica = document.getElementById("btnEditarMusica");
-const btnExcluirMusica = document.getElementById("btnExcluirMusica");
-
-const formEditarMusica = document.getElementById("formEditarMusica");
-const editNome = document.getElementById("editNome");
-const editArtista = document.getElementById("editArtista");
-const editGenero = document.getElementById("editGenero");
-const editNota = document.getElementById("editNota");
-const editEstrelasEls = document.querySelectorAll("#editEstrelas .estrela");
-const btnCancelarEdicao = document.getElementById("btnCancelarEdicao");
-
-let musicaAtual = null;
-
-const estrelas = document.querySelectorAll("#modalEstrelas .estrela");
-const inputNota = document.getElementById("musicaNota");
-
-let contadorMusicas = document.querySelectorAll(".musica").length;
-
-
-btnAdd.addEventListener("click", (e) => {
-  e.preventDefault();
-  modalMusicaOverlay.classList.add("ativo");
-});
-
-
-modalMusicaFechar.addEventListener("click", fecharModalMusica);
-
-modalMusicaOverlay.addEventListener("click", (e) => {
-  if (e.target === modalMusicaOverlay) fecharModalMusica();
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && modalMusicaOverlay.classList.contains("ativo")) {
-    fecharModalMusica();
-  }
-});
-
-function fecharModalMusica() {
-  modalMusicaOverlay.classList.remove("ativo");
-  formMusica.reset();
-  resetarEstrelas();
-}
-
-
-estrelas.forEach((estrela) => {
-  estrela.addEventListener("click", () => {
-    const valor = parseInt(estrela.dataset.valor);
-    inputNota.value = valor;
-    pintarEstrelas(valor);
+        salvarUsuarioLogado(dados);
+        atualizarInterfaceLogin();
+        carregarMusicas();
+        fecharModal();
+        formLogin.reset();
+      })
+      .catch(() => alert('Erro ao conectar com o servidor.'));
   });
-});
 
-function pintarEstrelas(valor) {
+  formCadastro.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    var nome = formCadastro.nome.value.trim();
+    var email = formCadastro.email.value.trim();
+    var senha = formCadastro.senha.value.trim();
+
+    fetch('/usuarios/cadastrar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome: nome, email: email, senha: senha })
+    })
+      .then((resposta) => resposta.json().then((dados) => ({ status: resposta.status, dados })))
+      .then(({ status, dados }) => {
+        if (status !== 201) {
+          alert(dados.mensagem || 'Não foi possível criar a conta.');
+          return;
+        }
+
+        salvarUsuarioLogado(dados);
+        atualizarInterfaceLogin();
+        carregarMusicas();
+        fecharModal();
+        formCadastro.reset();
+      })
+      .catch(() => alert('Erro ao conectar com o servidor.'));
+  });
+
+
+  //  MODAL ADICIONAR MÚSICA
+  const btnAdd = document.getElementById('btnAdd');
+  const modalMusicaOverlay = document.getElementById('modalMusicaOverlay');
+  const modalMusicaFechar = document.getElementById('modalMusicaFechar');
+  const formMusica = document.getElementById('formMusica');
+  const cardsContainer = document.getElementById('cardsContainer');
+  const quantidadeSpan = document.querySelector('.quantidade');
+
+  const estrelas = document.querySelectorAll('#modalEstrelas .estrela');
+  const inputNota = document.getElementById('musicaNota');
+
+
+  btnAdd.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    if (!obterUsuarioLogado()) {
+      abrirModalLogin();
+      return;
+    }
+
+    modalMusicaOverlay.classList.add('ativo');
+  });
+
+  modalMusicaFechar.addEventListener('click', fecharModalMusica);
+
+  modalMusicaOverlay.addEventListener('click', (e) => {
+    if (e.target === modalMusicaOverlay) fecharModalMusica();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalMusicaOverlay.classList.contains('ativo')) {
+      fecharModalMusica();
+    }
+  });
+
+  function fecharModalMusica() {
+    modalMusicaOverlay.classList.remove('ativo');
+    formMusica.reset();
+    resetarEstrelas();
+  }
+
   estrelas.forEach((estrela) => {
-    estrela.classList.toggle("ativa", parseInt(estrela.dataset.valor) <= valor);
+    estrela.addEventListener('click', () => {
+      var valor = parseInt(estrela.dataset.valor);
+      inputNota.value = valor;
+      pintarEstrelas(valor);
+    });
   });
-}
 
-function resetarEstrelas() {
-  inputNota.value = 0;
-  estrelas.forEach((estrela) => estrela.classList.remove("ativa"));
-}
-
-// cria o card
-formMusica.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const nome = document.getElementById("musicaNome").value.trim();
-  const artista = document.getElementById("musicaArtista").value.trim();
-  const genero = document.getElementById("musicaGenero").value.trim();
-  const nota = parseInt(inputNota.value) || 0;
-
-  if (!nome || !artista || !genero || nota === 0) {
-    alert("Preencha todos os campos e selecione uma nota.");
-    return;
+  function pintarEstrelas(valor) {
+    estrelas.forEach((estrela) => {
+      estrela.classList.toggle('ativa', parseInt(estrela.dataset.valor) <= valor);
+    });
   }
 
-  contadorMusicas++;
-
-      contadorMusicas++;
-
-    const musica = document.createElement('article');
-    musica.classList.add('musica');
-    musica.dataset.id = contadorMusicas;
-    musica.dataset.nome = nome;
-    musica.dataset.artista = artista;
-    musica.dataset.genero = genero;
-    musica.dataset.nota = nota;
-
-    musica.innerHTML = `
-      <div class="musica-capa">
-        <span>${String(contadorMusicas).padStart(2, '0')}</span>
-      </div>
-
-      <div class="musica-info">
-        <h3>${nome}</h3>
-        <p>${artista}</p>
-      </div>
-
-      <span class="musica-genero">${genero}</span>
-      <span class="musica-nota">${'★'.repeat(nota)}${'☆'.repeat(5 - nota)}</span>
-
-      <button class="musica-excluir" data-acao="excluir" aria-label="Excluir música" type="button">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 6h18" stroke-linecap="round"/>
-          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-linecap="round"/>
-          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke-linecap="round"/>
-          <path d="M10 11v6M14 11v6" stroke-linecap="round"/>
-        </svg>
-      </button>
-    `;
-
-    cardsContainer.appendChild(musica);
-
-  if (quantidadeSpan) {
-    quantidadeSpan.textContent = `${contadorMusicas} músicas`;
+  function resetarEstrelas() {
+    inputNota.value = 0;
+    estrelas.forEach((estrela) => estrela.classList.remove('ativa'));
   }
 
-  fecharModalMusica();
-});
+
+  formMusica.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    var usuario = obterUsuarioLogado();
+    if (!usuario) {
+      abrirModalLogin();
+      return;
+    }
+
+    var nome = document.getElementById('musicaNome').value.trim();
+    var artista = document.getElementById('musicaArtista').value.trim();
+    var genero = document.getElementById('musicaGenero').value.trim();
+    var nota = parseInt(inputNota.value) || 0;
+
+    if (!nome || !artista || !genero || nota === 0) {
+      alert('Preencha todos os campos e selecione uma nota.');
+      return;
+    }
+
+    fetch('/musicas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, artista, genero, nota, idUsuario: usuario.id })
+    })
+      .then((resposta) => resposta.json().then((dados) => ({ status: resposta.status, dados })))
+      .then(({ status, dados }) => {
+        if (status !== 201) {
+          alert(dados.mensagem || 'Não foi possível salvar a música.');
+          return;
+        }
+
+        fecharModalMusica();
+        carregarMusicas();
+      })
+      .catch(() => alert('Erro ao conectar com o servidor.'));
+  });
 
 
   function estrelasParaTexto(nota) {
     return '★'.repeat(nota) + '☆'.repeat(5 - nota);
   }
 
+  function carregarMusicas() {
+    var usuario = obterUsuarioLogado();
+
+    if (!usuario) {
+      renderizarEstadoDeslogado();
+      return;
+    }
+
+    fetch('/musicas?idUsuario=' + usuario.id)
+      .then((resposta) => resposta.json())
+      .then((lista) => renderizarMusicas(lista))
+      .catch(() => {
+        cardsContainer.innerHTML = '<div class="estado-vazio">Não foi possível carregar suas músicas.</div>';
+      });
+  }
+
+  function renderizarEstadoDeslogado() {
+    cardsContainer.innerHTML = `
+      <div class="estado-vazio">
+        <a href="#" id="linkLoginVazio">Faça login</a> para ver e adicionar suas músicas.
+      </div>
+    `;
+    if (quantidadeSpan) quantidadeSpan.textContent = '';
+
+    document.getElementById('linkLoginVazio').addEventListener('click', (e) => {
+      e.preventDefault();
+      abrirModalLogin();
+    });
+  }
+
+  function renderizarMusicas(lista) {
+    cardsContainer.innerHTML = '';
+
+    if (quantidadeSpan) {
+      quantidadeSpan.textContent = `${lista.length} música${lista.length === 1 ? '' : 's'}`;
+    }
+
+    if (lista.length === 0) {
+      cardsContainer.innerHTML = '<div class="estado-vazio">Você ainda não adicionou nenhuma música.</div>';
+      return;
+    }
+
+    lista.forEach((item, indice) => {
+      var musica = document.createElement('article');
+      musica.classList.add('musica');
+      musica.dataset.id = item.idMusicas;
+      musica.dataset.nome = item.nome;
+      musica.dataset.artista = item.artista;
+      musica.dataset.genero = item.genero;
+      musica.dataset.nota = item.nota;
+
+      musica.innerHTML = `
+        <div class="musica-capa">
+          <span>♫</span>
+        </div>
+
+        <div class="musica-info">
+          <h3>${item.nome}</h3>
+          <p>${item.artista}</p>
+        </div>
+
+        <span class="musica-genero">${item.genero}</span>
+        <span class="musica-nota">${estrelasParaTexto(item.nota)}</span>
+
+        <button class="musica-excluir" data-acao="excluir" aria-label="Excluir música" type="button">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18" stroke-linecap="round"/>
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-linecap="round"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke-linecap="round"/>
+            <path d="M10 11v6M14 11v6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      `;
+
+      cardsContainer.appendChild(musica);
+    });
+  }
+
+
+  const modalDetalheOverlay = document.getElementById('modalDetalheOverlay');
+  const modalDetalheFechar = document.getElementById('modalDetalheFechar');
+  const detalheView = document.getElementById('detalheView');
+  const detalheNome = document.getElementById('detalheNome');
+  const detalheArtista = document.getElementById('detalheArtista');
+  const detalheGenero = document.getElementById('detalheGenero');
+  const detalheNota = document.getElementById('detalheNota');
+  const btnEditarMusica = document.getElementById('btnEditarMusica');
+  const btnExcluirMusica = document.getElementById('btnExcluirMusica');
+  const formEditarMusica = document.getElementById('formEditarMusica');
+  const editNome = document.getElementById('editNome');
+  const editArtista = document.getElementById('editArtista');
+  const editGenero = document.getElementById('editGenero');
+  const editNota = document.getElementById('editNota');
+  const editEstrelasEls = document.querySelectorAll('#editEstrelas .estrela');
+  const btnCancelarEdicao = document.getElementById('btnCancelarEdicao');
+
+  let musicaAtual = null;
+
   cardsContainer.addEventListener('click', (e) => {
-    const botaoExcluir = e.target.closest('.musica-excluir');
-    const linha = e.target.closest('.musica');
+    var botaoExcluir = e.target.closest('.musica-excluir');
+    var linha = e.target.closest('.musica');
 
     if (!linha) return;
 
@@ -231,21 +411,27 @@ formMusica.addEventListener("submit", (e) => {
   });
 
   function excluirMusica(linha) {
-    const confirmar = confirm(`Remover "${linha.dataset.nome}" da sua coleção?`);
+    var usuario = obterUsuarioLogado();
+    if (!usuario) return;
+
+    var confirmar = confirm(`Remover "${linha.dataset.nome}" da sua coleção?`);
     if (!confirmar) return;
 
-    linha.remove();
-
-    const total = document.querySelectorAll('.musica').length;
-    if (quantidadeSpan) quantidadeSpan.textContent = `${total} músicas`;
-
-    fecharModalDetalhe();
+    fetch('/musicas/' + linha.dataset.id, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idUsuario: usuario.id })
+    })
+      .then(() => {
+        fecharModalDetalhe();
+        carregarMusicas();
+      })
+      .catch(() => alert('Erro ao excluir música.'));
   }
 
   btnExcluirMusica.addEventListener('click', () => {
     if (musicaAtual) excluirMusica(musicaAtual);
   });
-
 
   btnEditarMusica.addEventListener('click', () => {
     if (!musicaAtual) return;
@@ -268,7 +454,7 @@ formMusica.addEventListener("submit", (e) => {
 
   editEstrelasEls.forEach((estrela) => {
     estrela.addEventListener('click', () => {
-      const valor = parseInt(estrela.dataset.valor);
+      var valor = parseInt(estrela.dataset.valor);
       editNota.value = valor;
       pintarEstrelasEdicao(valor);
     });
@@ -283,27 +469,39 @@ formMusica.addEventListener("submit", (e) => {
   formEditarMusica.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    if (!musicaAtual) return;
+    var usuario = obterUsuarioLogado();
+    if (!usuario || !musicaAtual) return;
 
-    const nome = editNome.value.trim();
-    const artista = editArtista.value.trim();
-    const genero = editGenero.value.trim();
-    const nota = parseInt(editNota.value) || 0;
+    var nome = editNome.value.trim();
+    var artista = editArtista.value.trim();
+    var genero = editGenero.value.trim();
+    var nota = parseInt(editNota.value) || 0;
 
     if (!nome || !artista || !genero || nota === 0) {
       alert('Preencha todos os campos e selecione uma nota.');
       return;
     }
 
-    musicaAtual.dataset.nome = nome;
-    musicaAtual.dataset.artista = artista;
-    musicaAtual.dataset.genero = genero;
-    musicaAtual.dataset.nota = nota;
+    fetch('/musicas/' + musicaAtual.dataset.id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, artista, genero, nota, idUsuario: usuario.id })
+    })
+      .then((resposta) => resposta.json().then((dados) => ({ status: resposta.status, dados })))
+      .then(({ status, dados }) => {
+        if (status !== 200) {
+          alert(dados.mensagem || 'Não foi possível salvar.');
+          return;
+        }
 
-    musicaAtual.querySelector('.musica-info h3').textContent = nome;
-    musicaAtual.querySelector('.musica-info p').textContent = artista;
-    musicaAtual.querySelector('.musica-genero').textContent = genero;
-    musicaAtual.querySelector('.musica-nota').textContent = estrelasParaTexto(nota);
-
-    abrirDetalhes(musicaAtual);
+        fecharModalDetalhe();
+        carregarMusicas();
+      })
+      .catch(() => alert('Erro ao editar música.'));
   });
+
+
+  atualizarInterfaceLogin();
+  carregarMusicas();
+
+});
