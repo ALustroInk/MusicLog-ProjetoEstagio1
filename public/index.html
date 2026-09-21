@@ -207,6 +207,20 @@
             <input type="hidden" name="nota" id="musicaNota" value="0" />
           </label>
 
+          <label class="modal-label">
+            Capa do álbum (opcional)
+            <input
+              type="file"
+              id="musicaCapa"
+              name="capa"
+              accept="image/png, image/jpeg, image/webp"
+            />
+          </label>
+
+          <div class="capa-preview" id="capaPreviewAdd" hidden>
+            <img id="capaPreviewAddImg" src="" alt="Pré-visualização da capa" />
+          </div>
+
           <button type="submit" class="modal-btn">SALVAR MÚSICA</button>
         </form>
       </div>
@@ -224,6 +238,10 @@
         </button>
 
         <div class="modal-detalhe" id="detalheView">
+          <div class="detalhe-capa" id="detalheCapaContainer" hidden>
+            <img id="detalheCapaImg" src="" alt="Capa do álbum" />
+          </div>
+
           <h2 class="modal-titulo" id="detalheNome"></h2>
           <p class="modal-subtitulo" id="detalheArtista"></p>
 
@@ -284,6 +302,20 @@
             </div>
             <input type="hidden" id="editNota" value="0" />
           </label>
+
+          <label class="modal-label">
+            Capa do álbum
+            <input
+              type="file"
+              id="editCapa"
+              name="capa"
+              accept="image/png, image/jpeg, image/webp"
+            />
+          </label>
+
+          <div class="capa-preview" id="capaPreviewEdit" hidden>
+            <img id="capaPreviewEditImg" src="" alt="Pré-visualização da capa" />
+          </div>
 
           <div class="modal-acoes">
             <button type="submit" class="modal-btn">SALVAR ALTERAÇÕES</button>

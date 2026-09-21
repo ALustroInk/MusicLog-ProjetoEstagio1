@@ -22,3 +22,9 @@ ALTER TABLE musicas
 ADD COLUMN fk_usuario INT NOT NULL,
 ADD CONSTRAINT fk_musicas_usuario
     FOREIGN KEY (fk_usuario) REFERENCES usuarios(idUsuarios);
+    
+select * from usuarios;
+select * from musicas;
+
+ALTER TABLE musicas
+ADD COLUMN capa_url VARCHAR(500) NULL;

@@ -174,6 +174,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const estrelas = document.querySelectorAll('#modalEstrelas .estrela');
   const inputNota = document.getElementById('musicaNota');
+  const inputCapa = document.getElementById('musicaCapa');
+  const capaPreviewAdd = document.getElementById('capaPreviewAdd');
+  const capaPreviewAddImg = document.getElementById('capaPreviewAddImg');
+
+  inputCapa.addEventListener('change', () => {
+    var arquivo = inputCapa.files[0];
+    if (!arquivo) {
+      capaPreviewAdd.hidden = true;
+      return;
+    }
+    capaPreviewAddImg.src = URL.createObjectURL(arquivo);
+    capaPreviewAdd.hidden = false;
+  });
 
 
   btnAdd.addEventListener('click', (e) => {
@@ -203,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalMusicaOverlay.classList.remove('ativo');
     formMusica.reset();
     resetarEstrelas();
+    capaPreviewAdd.hidden = true;
   }
 
   estrelas.forEach((estrela) => {
@@ -244,11 +258,21 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    var formData = new FormData();
+    formData.append('nome', nome);
+    formData.append('artista', artista);
+    formData.append('genero', genero);
+    formData.append('nota', nota);
+    formData.append('idUsuario', usuario.id);
+    if (inputCapa.files[0]) {
+      formData.append('capa', inputCapa.files[0]);
+    }
+
     fetch('/musicas', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, artista, genero, nota, idUsuario: usuario.id })
+      body: formData
     })
+
       .then((resposta) => resposta.json().then((dados) => ({ status: resposta.status, dados })))
       .then(({ status, dados }) => {
         if (status !== 201) {
@@ -317,10 +341,13 @@ document.addEventListener('DOMContentLoaded', () => {
       musica.dataset.artista = item.artista;
       musica.dataset.genero = item.genero;
       musica.dataset.nota = item.nota;
+      musica.dataset.capa = item.capa_url || '';
 
       musica.innerHTML = `
         <div class="musica-capa">
-          <span>♫</span>
+          ${item.capa_url
+            ? `<img src="${item.capa_url}" alt="Capa de ${item.nome}">`
+            : `<span>♫</span>`}
         </div>
 
         <div class="musica-info">
@@ -353,6 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const detalheArtista = document.getElementById('detalheArtista');
   const detalheGenero = document.getElementById('detalheGenero');
   const detalheNota = document.getElementById('detalheNota');
+  const detalheCapaContainer = document.getElementById('detalheCapaContainer');
+  const detalheCapaImg = document.getElementById('detalheCapaImg');
   const btnEditarMusica = document.getElementById('btnEditarMusica');
   const btnExcluirMusica = document.getElementById('btnExcluirMusica');
   const formEditarMusica = document.getElementById('formEditarMusica');
@@ -360,7 +389,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const editArtista = document.getElementById('editArtista');
   const editGenero = document.getElementById('editGenero');
   const editNota = document.getElementById('editNota');
+  const editCapa = document.getElementById('editCapa');
+  const capaPreviewEdit = document.getElementById('capaPreviewEdit');
+  const capaPreviewEditImg = document.getElementById('capaPreviewEditImg');
   const editEstrelasEls = document.querySelectorAll('#editEstrelas .estrela');
+
+  editCapa.addEventListener('change', () => {
+    var arquivo = editCapa.files[0];
+    if (!arquivo) return;
+    capaPreviewEditImg.src = URL.createObjectURL(arquivo);
+    capaPreviewEdit.hidden = false;
+  });
+
   const btnCancelarEdicao = document.getElementById('btnCancelarEdicao');
 
   let musicaAtual = null;
@@ -386,6 +426,13 @@ document.addEventListener('DOMContentLoaded', () => {
     detalheArtista.textContent = linha.dataset.artista;
     detalheGenero.textContent = linha.dataset.genero;
     detalheNota.textContent = estrelasParaTexto(parseInt(linha.dataset.nota));
+
+    if (linha.dataset.capa) {
+      detalheCapaImg.src = linha.dataset.capa;
+      detalheCapaContainer.hidden = false;
+    } else {
+      detalheCapaContainer.hidden = true;
+    }
 
     detalheView.hidden = false;
     formEditarMusica.hidden = true;
@@ -443,6 +490,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     pintarEstrelasEdicao(parseInt(musicaAtual.dataset.nota));
 
+    editCapa.value = '';
+    if (musicaAtual.dataset.capa) {
+      capaPreviewEditImg.src = musicaAtual.dataset.capa;
+      capaPreviewEdit.hidden = false;
+    } else {
+      capaPreviewEdit.hidden = true;
+    }
+
     detalheView.hidden = true;
     formEditarMusica.hidden = false;
   });
@@ -482,11 +537,21 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    var formData = new FormData();
+    formData.append('nome', nome);
+    formData.append('artista', artista);
+    formData.append('genero', genero);
+    formData.append('nota', nota);
+    formData.append('idUsuario', usuario.id);
+    if (editCapa.files[0]) {
+      formData.append('capa', editCapa.files[0]);
+    }
+
     fetch('/musicas/' + musicaAtual.dataset.id, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, artista, genero, nota, idUsuario: usuario.id })
+      body: formData
     })
+
       .then((resposta) => resposta.json().then((dados) => ({ status: resposta.status, dados })))
       .then(({ status, dados }) => {
         if (status !== 200) {
