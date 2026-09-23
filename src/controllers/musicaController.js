@@ -1,19 +1,10 @@
 var musicaModel = require("../models/musicaModel");
 var s3Client = require("../config/s3");
-var { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+var { PutObjectCommand, DeleteObjectCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
+var { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 var BUCKET = process.env.S3_BUCKET_NAME;
-var REGION = process.env.AWS_REGION;
-
-function montarUrlPublica(key) {
-    return `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
-}
-
-function extrairKeyDaUrl(url) {
-    if (!url) return null;
-    var partes = url.split(".amazonaws.com/");
-    return partes[1] || null;
-}
+var URL_EXPIRA_EM_SEGUNDOS = 3600; // 1 hora
 
 function subirImagem(idUsuario, arquivo) {
     var nomeSanitizado = arquivo.originalname.replace(/[^a-zA-Z0-9.\-_]/g, "");
@@ -27,18 +18,24 @@ function subirImagem(idUsuario, arquivo) {
     });
 
     return s3Client.send(comando).then(function () {
-        return montarUrlPublica(key);
+        return key; // guardamos só a key no banco, não uma URL pública
     });
 }
 
-function apagarImagem(url) {
-    var key = extrairKeyDaUrl(url);
+function apagarImagem(key) {
     if (!key) return Promise.resolve();
 
     var comando = new DeleteObjectCommand({ Bucket: BUCKET, Key: key });
     return s3Client.send(comando).catch(function (erro) {
         console.log("Aviso: não foi possível apagar a imagem antiga do S3:", erro.message);
     });
+}
+
+function gerarUrlAssinada(key) {
+    if (!key) return Promise.resolve(null);
+
+    var comando = new GetObjectCommand({ Bucket: BUCKET, Key: key });
+    return getSignedUrl(s3Client, comando, { expiresIn: URL_EXPIRA_EM_SEGUNDOS });
 }
 
 function listar(req, res) {
@@ -50,7 +47,15 @@ function listar(req, res) {
 
     musicaModel.listarPorUsuario(idUsuario)
         .then(function (resultado) {
-            res.status(200).json(resultado);
+            return Promise.all(resultado.map(function (musica) {
+                return gerarUrlAssinada(musica.capa_url).then(function (urlAssinada) {
+                    musica.capa_url = urlAssinada;
+                    return musica;
+                });
+            }));
+        })
+        .then(function (resultadoComUrls) {
+            res.status(200).json(resultadoComUrls);
         })
         .catch(function (erro) {
             console.log(erro);
@@ -77,16 +82,18 @@ function cadastrar(req, res) {
         : Promise.resolve(null);
 
     promessaCapa
-        .then(function (capaUrl) {
-            return musicaModel.cadastrar(nome, artista, genero, nota, idUsuario, capaUrl)
+        .then(function (capaKey) {
+            return musicaModel.cadastrar(nome, artista, genero, nota, idUsuario, capaKey)
                 .then(function (resultado) {
-                    res.status(201).json({
-                        idMusicas: resultado.insertId,
-                        nome: nome,
-                        artista: artista,
-                        genero: genero,
-                        nota: nota,
-                        capa_url: capaUrl
+                    return gerarUrlAssinada(capaKey).then(function (urlAssinada) {
+                        res.status(201).json({
+                            idMusicas: resultado.insertId,
+                            nome: nome,
+                            artista: artista,
+                            genero: genero,
+                            nota: nota,
+                            capa_url: urlAssinada
+                        });
                     });
                 });
         })
@@ -115,17 +122,17 @@ function editar(req, res) {
                 return null;
             }
 
-            var capaAtual = existente[0].capa_url;
+            var capaAtual = existente[0].capa_url; // key salva no banco
 
             var promessaCapa = req.file
-                ? subirImagem(idUsuario, req.file).then(function (novaUrl) {
+                ? subirImagem(idUsuario, req.file).then(function (novaKey) {
                     if (capaAtual) apagarImagem(capaAtual);
-                    return novaUrl;
+                    return novaKey;
                 })
                 : Promise.resolve(capaAtual);
 
-            return promessaCapa.then(function (capaUrl) {
-                return musicaModel.editar(id, nome, artista, genero, nota, idUsuario, capaUrl);
+            return promessaCapa.then(function (capaKey) {
+                return musicaModel.editar(id, nome, artista, genero, nota, idUsuario, capaKey);
             });
         })
         .then(function (resultado) {
@@ -148,13 +155,13 @@ function deletar(req, res) {
 
     musicaModel.buscarPorId(id, idUsuario)
         .then(function (existente) {
-            var capaUrl = existente.length > 0 ? existente[0].capa_url : null;
+            var capaKey = existente.length > 0 ? existente[0].capa_url : null;
 
             return musicaModel.deletar(id, idUsuario).then(function (resultado) {
                 if (resultado.affectedRows === 0) {
                     return res.status(404).json({ mensagem: "Música não encontrada" });
                 }
-                if (capaUrl) apagarImagem(capaUrl);
+                if (capaKey) apagarImagem(capaKey);
                 res.status(200).json({ mensagem: "Música removida com sucesso" });
             });
         })
