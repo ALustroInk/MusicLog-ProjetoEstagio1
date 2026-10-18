@@ -1,41 +1,82 @@
 var musicaModel = require("../models/musicaModel");
-var s3Client = require("../config/s3");
-var { PutObjectCommand, DeleteObjectCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
-var { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+var fs = require("fs");
+var path = require("path");
 
-var BUCKET = process.env.S3_BUCKET_NAME;
-var URL_EXPIRA_EM_SEGUNDOS = 3600; // 1 hora
+// Escolha onde salvar as capas pelo .env:
+//   STORAGE_TIPO=local  -> pasta ./uploads/capas (padrão)
+//   STORAGE_TIPO=s3     -> AWS S3 (precisa das chaves AWS no .env)
+var USAR_S3 = process.env.STORAGE_TIPO === "s3";
 
-function subirImagem(idUsuario, arquivo) {
+// LOCAL
+var PASTA_CAPAS = path.join(__dirname, "..", "..", "uploads", "capas");
+if (!USAR_S3) fs.mkdirSync(PASTA_CAPAS, { recursive: true });
+
+function subirImagemLocal(idUsuario, arquivo) {
     var nomeSanitizado = arquivo.originalname.replace(/[^a-zA-Z0-9.\-_]/g, "");
-    var key = `capas/${idUsuario}-${Date.now()}-${nomeSanitizado}`;
+    var nomeArquivo = `${idUsuario}-${Date.now()}-${nomeSanitizado}`;
+    return fs.promises.writeFile(path.join(PASTA_CAPAS, nomeArquivo), arquivo.buffer)
+        .then(function () { return `capas/${nomeArquivo}`; });
+}
 
-    var comando = new PutObjectCommand({
-        Bucket: BUCKET,
-        Key: key,
-        Body: arquivo.buffer,
-        ContentType: arquivo.mimetype
-    });
-
-    return s3Client.send(comando).then(function () {
-        return key; // guardamos só a key no banco, não uma URL pública
+function apagarImagemLocal(key) {
+    return fs.promises.unlink(path.join(PASTA_CAPAS, path.basename(key))).catch(function (erro) {
+        console.log("Aviso: não foi possível apagar a imagem antiga:", erro.message);
     });
 }
 
-function apagarImagem(key) {
-    if (!key) return Promise.resolve();
+function urlImagemLocal(key) {
+    return Promise.resolve("/uploads/" + key);
+}
 
-    var comando = new DeleteObjectCommand({ Bucket: BUCKET, Key: key });
-    return s3Client.send(comando).catch(function (erro) {
+// S3 (só é carregado se STORAGE_TIPO=s3)
+var BUCKET = process.env.S3_BUCKET_NAME;
+var URL_EXPIRA_EM_SEGUNDOS = 3600; // 1 hora
+
+function carregarS3() {
+    return {
+        s3Client: require("../config/s3"),
+        cmds: require("@aws-sdk/client-s3"),
+        presigner: require("@aws-sdk/s3-request-presigner")
+    };
+}
+
+function subirImagemS3(idUsuario, arquivo) {
+    var s3 = carregarS3();
+    var nomeSanitizado = arquivo.originalname.replace(/[^a-zA-Z0-9.\-_]/g, "");
+    var key = `capas/${idUsuario}-${Date.now()}-${nomeSanitizado}`;
+    var comando = new s3.cmds.PutObjectCommand({
+        Bucket: BUCKET, Key: key, Body: arquivo.buffer, ContentType: arquivo.mimetype
+    });
+    return s3.s3Client.send(comando).then(function () { return key; });
+}
+
+function apagarImagemS3(key) {
+    var s3 = carregarS3();
+    var comando = new s3.cmds.DeleteObjectCommand({ Bucket: BUCKET, Key: key });
+    return s3.s3Client.send(comando).catch(function (erro) {
         console.log("Aviso: não foi possível apagar a imagem antiga do S3:", erro.message);
     });
 }
 
+function urlImagemS3(key) {
+    var s3 = carregarS3();
+    var comando = new s3.cmds.GetObjectCommand({ Bucket: BUCKET, Key: key });
+    return s3.presigner.getSignedUrl(s3.s3Client, comando, { expiresIn: URL_EXPIRA_EM_SEGUNDOS });
+}
+
+// ---------- Funções usadas pelo resto do controller ----------
+function subirImagem(idUsuario, arquivo) {
+    return USAR_S3 ? subirImagemS3(idUsuario, arquivo) : subirImagemLocal(idUsuario, arquivo);
+}
+
+function apagarImagem(key) {
+    if (!key) return Promise.resolve();
+    return USAR_S3 ? apagarImagemS3(key) : apagarImagemLocal(key);
+}
+
 function gerarUrlAssinada(key) {
     if (!key) return Promise.resolve(null);
-
-    var comando = new GetObjectCommand({ Bucket: BUCKET, Key: key });
-    return getSignedUrl(s3Client, comando, { expiresIn: URL_EXPIRA_EM_SEGUNDOS });
+    return USAR_S3 ? urlImagemS3(key) : urlImagemLocal(key);
 }
 
 function listar(req, res) {
