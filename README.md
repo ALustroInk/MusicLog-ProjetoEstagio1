@@ -1,4 +1,4 @@
-![MusicLog Banner](./public/imgs/MusicLog_banner.png)
+![MusicLog Banner](./public/assets/imgs/MusicLog_banner.png)
 
 ---
 
@@ -23,7 +23,7 @@ Ao final, a arquitetura e as decisões técnicas foram apresentadas à equipe, c
 
 O ambiente foi estruturado para integrar a aplicação web aos serviços de infraestrutura da AWS, priorizando organização, segurança e monitoramento.
 
-![Diagrama de Arquitetura](./public/imgs/MusicLog_diagrama.png)
+![Diagrama de Arquitetura](./public/assets/imgs/MusicLog_diagrama.png)
 
 ---
 
